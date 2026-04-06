@@ -4,14 +4,17 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ProfileView: View {
     @EnvironmentObject private var moodStorage: MoodStorageManager
     @EnvironmentObject private var appSettings: AppSettingsStore
+    @EnvironmentObject private var profilePhotoStore: ProfilePhotoStore
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var showResetConfirm = false
     @State private var showEditProfile = false
+    @State private var showPhotoPicker = false
 
     private var appVersion: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -55,6 +58,11 @@ struct ProfileView: View {
             EditProfileView()
                 .environmentObject(appSettings)
         }
+        .sheet(isPresented: $showPhotoPicker) {
+            PhotoLibraryPicker(isPresented: $showPhotoPicker) { image in
+                profilePhotoStore.savePickedImage(image)
+            }
+        }
         .alert("Reset all mood history?", isPresented: $showResetConfirm) {
             Button("Cancel", role: .cancel) {}
             Button("Reset", role: .destructive) {
@@ -67,20 +75,13 @@ struct ProfileView: View {
 
     private var profileCard: some View {
         HStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(AppColors.cardBackground(for: colorScheme))
+            Button {
+                showPhotoPicker = true
+            } label: {
+                avatarView
             }
-            .frame(width: 56, height: 56)
-            .overlay(
-                Image(systemName: "person.fill")
-                    .font(.title2)
-                    .foregroundColor(AppColors.accent)
-            )
-            .overlay(
-                Circle()
-                    .stroke(AppColors.accent.opacity(0.35), lineWidth: 1)
-            )
+            .buttonStyle(.plain)
+            .accessibilityLabel("Change profile photo")
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(appSettings.userName)
@@ -110,6 +111,7 @@ struct ProfileView: View {
                         .fill(AppColors.accent.opacity(0.12))
                 )
             }
+            .buttonStyle(.plain)
         }
         .padding(18)
         .background(
@@ -119,6 +121,40 @@ struct ProfileView: View {
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(AppColors.accent.opacity(0.15), lineWidth: 1)
+        )
+    }
+
+    private var avatarView: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Circle()
+                .fill(AppColors.cardBackground(for: colorScheme))
+                .frame(width: 64, height: 64)
+
+            if let photo = profilePhotoStore.image {
+                Image(uiImage: photo)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 64, height: 64)
+                    .clipShape(Circle())
+            } else {
+                Image(systemName: "person.fill")
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundColor(AppColors.accent.opacity(0.85))
+            }
+
+            Image(systemName: "camera.fill")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(.black)
+                .padding(6)
+                .background(
+                    Circle()
+                        .fill(AppColors.accent)
+                )
+                .offset(x: 2, y: 2)
+        }
+        .overlay(
+            Circle()
+                .stroke(AppColors.accent.opacity(0.3), lineWidth: 1)
         )
     }
 
