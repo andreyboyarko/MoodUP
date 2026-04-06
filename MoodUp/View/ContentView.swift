@@ -15,7 +15,7 @@ struct ContentView: View {
             if showSplash {
                 SplashView(showSplash: $showSplash)
             } else {
-                HomeView()
+                MainTabView()
             }
         }
     }
