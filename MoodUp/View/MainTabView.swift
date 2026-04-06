@@ -46,7 +46,7 @@ struct MainTabView: View {
                     Text("Profile")
                 }
         }
-        .tint(Color(red: 163/255, green: 255/255, blue: 18/255)) // салатовый
+        .tint(AppColors.accent)
     }
     
     private func configureTabBarAppearance() {
