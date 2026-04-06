@@ -107,9 +107,9 @@ final class AppSettingsStore: ObservableObject {
         }
     }
 
-    func setUserName(_ value: String) {
-        userName = value
-        defaults.set(value, forKey: Keys.userName)
+    func setUserName(_ newValue: String) {
+        userName = newValue
+        defaults.set(newValue, forKey: Keys.userName)
     }
 
     func persistInsightSelection(sleep: SleepQuality?, energy: EnergyLevel?) {
