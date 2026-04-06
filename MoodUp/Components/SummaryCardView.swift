@@ -30,7 +30,7 @@ struct SummaryCardView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(AppColors.accent.opacity(0.12), lineWidth: 1)
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.12), lineWidth: 1)
         )
     }
 }

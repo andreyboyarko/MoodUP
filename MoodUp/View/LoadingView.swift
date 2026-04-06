@@ -10,7 +10,7 @@ import SwiftUI
 struct LoadingView: View {
     @State private var start = false
     
-    private let neonColor = Color(red: 163/255, green: 255/255, blue: 18/255)
+    private let neonColor = AppColors.accentNeon
 
     var body: some View {
         ZStack {

@@ -37,7 +37,7 @@ struct EditProfileView: View {
                             .foregroundColor(AppColors.textPrimary(for: colorScheme))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .stroke(AppColors.accent.opacity(0.12), lineWidth: 1)
+                                    .stroke(AppColors.accent(for: colorScheme).opacity(0.12), lineWidth: 1)
                             )
                     }
 
@@ -50,12 +50,12 @@ struct EditProfileView: View {
                     } label: {
                         Text("Save")
                             .font(.headline.weight(.semibold))
-                            .foregroundColor(.black)
+                            .foregroundColor(editProfileSaveLabelColor)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(AppColors.accent)
+                                    .fill(AppColors.accent(for: colorScheme))
                             )
                     }
                     .buttonStyle(.plain)
@@ -71,12 +71,16 @@ struct EditProfileView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(AppColors.accent)
+                    .foregroundColor(AppColors.accent(for: colorScheme))
                 }
             }
         }
         .onAppear {
             name = appSettings.userName
         }
+    }
+
+    private var editProfileSaveLabelColor: Color {
+        colorScheme == .light ? .white : .black
     }
 }

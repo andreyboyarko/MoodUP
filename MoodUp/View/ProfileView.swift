@@ -103,12 +103,12 @@ struct ProfileView: View {
                     Text("Edit")
                 }
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(AppColors.accent)
+                .foregroundColor(AppColors.accent(for: colorScheme))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(
                     Capsule()
-                        .fill(AppColors.accent.opacity(0.12))
+                        .fill(AppColors.accent(for: colorScheme).opacity(0.12))
                 )
             }
             .buttonStyle(.plain)
@@ -120,15 +120,14 @@ struct ProfileView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(AppColors.accent.opacity(0.15), lineWidth: 1)
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.15), lineWidth: 1)
         )
     }
 
     private var avatarView: some View {
-        ZStack(alignment: .bottomTrailing) {
+        ZStack {
             Circle()
                 .fill(AppColors.cardBackground(for: colorScheme))
-                .frame(width: 64, height: 64)
 
             if let photo = profilePhotoStore.image {
                 Image(uiImage: photo)
@@ -138,24 +137,44 @@ struct ProfileView: View {
                     .clipShape(Circle())
             } else {
                 Image(systemName: "person.fill")
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundColor(AppColors.accent.opacity(0.85))
+                    .font(.system(size: 26, weight: .medium))
+                    .foregroundColor(avatarPlaceholderGray)
             }
-
+        }
+        .frame(width: 64, height: 64)
+        .overlay(
+            Circle()
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.3), lineWidth: 1)
+        )
+        .overlay(alignment: .bottomTrailing) {
             Image(systemName: "camera.fill")
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.black)
+                .foregroundColor(cameraGlyphOnAddButton)
                 .padding(6)
                 .background(
                     Circle()
-                        .fill(AppColors.accent)
+                        .fill(addPhotoButtonGray)
                 )
                 .offset(x: 2, y: 2)
         }
-        .overlay(
-            Circle()
-                .stroke(AppColors.accent.opacity(0.3), lineWidth: 1)
-        )
+    }
+
+    /// Силуэт-заглушка в пустом аватаре (нейтральный серый).
+    private var avatarPlaceholderGray: Color {
+        colorScheme == .dark
+            ? Color(red: 0.45, green: 0.45, blue: 0.45)
+            : Color(red: 0.55, green: 0.55, blue: 0.55)
+    }
+
+    /// Заливка маленькой кнопки «добавить фото» — серый вместо салатового.
+    private var addPhotoButtonGray: Color {
+        colorScheme == .dark
+            ? Color(red: 0.38, green: 0.38, blue: 0.38)
+            : Color(red: 0.72, green: 0.72, blue: 0.72)
+    }
+
+    private var cameraGlyphOnAddButton: Color {
+        colorScheme == .dark ? .white.opacity(0.92) : Color(white: 0.22)
     }
 
     private var quickStatsSection: some View {
@@ -186,7 +205,7 @@ struct ProfileView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(AppColors.accent.opacity(0.08), lineWidth: 1)
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.08), lineWidth: 1)
         )
     }
 
@@ -200,7 +219,7 @@ struct ProfileView: View {
                     EmptyView()
                 }
                 .labelsHidden()
-                .tint(AppColors.accent)
+                .tint(AppColors.accent(for: colorScheme))
             }
 
             Divider().opacity(0.2)
@@ -213,7 +232,7 @@ struct ProfileView: View {
                     EmptyView()
                 }
                 .labelsHidden()
-                .tint(AppColors.accent)
+                .tint(AppColors.accent(for: colorScheme))
             }
         }
         .background(

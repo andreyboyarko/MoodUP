@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct MainTabView: View {
-    
+    @Environment(\.colorScheme) private var colorScheme
+
     init() {
         configureTabBarAppearance()
     }
-    
+
     var body: some View {
         TabView {
             
@@ -46,13 +47,10 @@ struct MainTabView: View {
                     Text("Profile")
                 }
         }
-        .tint(AppColors.accent)
+        .tint(AppColors.accent(for: colorScheme))
     }
-    
+
     private func configureTabBarAppearance() {
-        
-        let neonColor = UIColor(red: 163/255, green: 255/255, blue: 18/255, alpha: 1)
-        
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         
@@ -61,10 +59,13 @@ struct MainTabView: View {
             trait.userInterfaceStyle == .dark ? UIColor.black : UIColor.white
         }
         
-        // 🟢 активная иконка
-        appearance.stackedLayoutAppearance.selected.iconColor = neonColor
+        // Акцент выбранной вкладки: яркий в тёмной теме, приглушённый в светлой
+        let accentDynamic = UIColor { traits in
+            AppColors.accentUIColor(for: traits)
+        }
+        appearance.stackedLayoutAppearance.selected.iconColor = accentDynamic
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: neonColor
+            .foregroundColor: accentDynamic
         ]
         
         // ⚫ неактивная

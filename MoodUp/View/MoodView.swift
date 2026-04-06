@@ -23,8 +23,6 @@ struct MoodView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
-                    header
-
                     SectionHeaderView("How do you feel today?", subtitle: "Track your current mood and save it")
 
                     LazyVGrid(columns: columns, spacing: 12) {
@@ -64,17 +62,6 @@ struct MoodView: View {
         .animation(.easeInOut(duration: 0.28), value: latest?.id)
     }
 
-    private var header: some View {
-        HStack(spacing: 12) {
-            Image("arrow2")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 36, height: 36)
-                .shadow(color: AppColors.accent.opacity(0.35), radius: 8, y: 2)
-            Spacer()
-        }
-    }
-
     private func currentMoodBlock(entry: MoodEntry) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Current mood")
@@ -100,7 +87,7 @@ struct MoodView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(AppColors.accent.opacity(savePulse ? 0.55 : 0.25), lineWidth: 1)
+                    .stroke(AppColors.accent(for: colorScheme).opacity(savePulse ? 0.55 : 0.25), lineWidth: 1)
             )
             .scaleEffect(savePulse ? 1.02 : 1)
         }

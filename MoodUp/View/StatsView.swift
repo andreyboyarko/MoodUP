@@ -86,7 +86,7 @@ struct StatsView: View {
                                 .fill(AppColors.cardBackground(for: colorScheme))
                                 .frame(height: 10)
                             RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                .fill(AppColors.accent.opacity(0.85))
+                                .fill(AppColors.accent(for: colorScheme).opacity(0.85))
                                 .frame(width: max(6, 120 * CGFloat(count) / CGFloat(maxWeekCount)), height: 10)
                         }
                         .frame(width: 120, height: 10, alignment: .leading)
@@ -104,7 +104,7 @@ struct StatsView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(AppColors.accent.opacity(0.12), lineWidth: 1)
+                    .stroke(AppColors.accent(for: colorScheme).opacity(0.12), lineWidth: 1)
             )
         }
     }

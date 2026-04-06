@@ -16,13 +16,13 @@ struct EmptyStateView: View {
         VStack(spacing: 16) {
             Image(systemName: systemImage)
                 .font(.system(size: 44, weight: .light))
-                .foregroundColor(AppColors.accent.opacity(0.85))
+                .foregroundColor(AppColors.accent(for: colorScheme).opacity(0.85))
                 .padding(24)
                 .background(
                     Circle()
                         .fill(AppColors.cardBackground(for: colorScheme))
                 )
-                .shadow(color: AppColors.accent.opacity(0.2), radius: 16, y: 6)
+                .shadow(color: AppColors.accent(for: colorScheme).opacity(0.2), radius: 16, y: 6)
 
             Text(title)
                 .font(.title3.weight(.semibold))

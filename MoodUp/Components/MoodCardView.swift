@@ -19,7 +19,7 @@ struct MoodCardView: View {
                     .font(.system(size: 32))
                 Image(systemName: mood.systemImage)
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(isSelected ? AppColors.accent : AppColors.textSecondary(for: colorScheme))
+                    .foregroundColor(isSelected ? AppColors.accent(for: colorScheme) : AppColors.textSecondary(for: colorScheme))
                 Text(mood.title)
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundColor(AppColors.textPrimary(for: colorScheme))
@@ -33,9 +33,9 @@ struct MoodCardView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(isSelected ? AppColors.accent : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? AppColors.accent(for: colorScheme) : Color.clear, lineWidth: 2)
             )
-            .shadow(color: isSelected ? AppColors.accent.opacity(0.45) : Color.black.opacity(colorScheme == .dark ? 0.35 : 0.08), radius: isSelected ? 14 : 6, y: 4)
+            .shadow(color: isSelected ? AppColors.accent(for: colorScheme).opacity(0.45) : Color.black.opacity(colorScheme == .dark ? 0.35 : 0.08), radius: isSelected ? 14 : 6, y: 4)
             .scaleEffect(isSelected ? 1.03 : 1.0)
         }
         .buttonStyle(.plain)

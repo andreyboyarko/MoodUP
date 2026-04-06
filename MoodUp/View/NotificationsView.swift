@@ -26,7 +26,7 @@ struct NotificationsView: View {
                             .font(.body)
                             .foregroundColor(AppColors.textPrimary(for: colorScheme))
                     }
-                    .tint(AppColors.accent)
+                    .tint(AppColors.accent(for: colorScheme))
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -94,7 +94,7 @@ struct NotificationsView: View {
                 Spacer()
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(AppColors.accent)
+                        .foregroundColor(AppColors.accent(for: colorScheme))
                 }
             }
             .padding(14)
@@ -104,7 +104,7 @@ struct NotificationsView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(isSelected ? AppColors.accent.opacity(0.55) : AppColors.accent.opacity(0.1), lineWidth: 1)
+                    .stroke(isSelected ? AppColors.accent(for: colorScheme).opacity(0.55) : AppColors.accent(for: colorScheme).opacity(0.1), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -135,7 +135,7 @@ struct NotificationsView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(AppColors.accent.opacity(0.15), lineWidth: 1)
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.15), lineWidth: 1)
         )
     }
 }

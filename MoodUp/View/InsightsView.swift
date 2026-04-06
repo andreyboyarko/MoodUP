@@ -81,19 +81,19 @@ struct InsightsView: View {
         Button(action: action) {
             Text(title)
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(isSelected ? Color.black : AppColors.textPrimary(for: colorScheme))
+                .foregroundColor(chipTitleColor(isSelected: isSelected))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .frame(minWidth: 96)
                 .background(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(isSelected ? AppColors.accent : AppColors.cardBackground(for: colorScheme))
+                        .fill(isSelected ? AppColors.accent(for: colorScheme) : AppColors.cardBackground(for: colorScheme))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(isSelected ? AppColors.accent.opacity(0.4) : Color.clear, lineWidth: 1)
+                        .stroke(isSelected ? AppColors.accent(for: colorScheme).opacity(0.4) : Color.clear, lineWidth: 1)
                 )
-                .shadow(color: isSelected ? AppColors.accent.opacity(0.35) : .clear, radius: 10, y: 4)
+                .shadow(color: isSelected ? AppColors.accent(for: colorScheme).opacity(0.35) : .clear, radius: 10, y: 4)
         }
         .buttonStyle(.plain)
     }
@@ -117,8 +117,13 @@ struct InsightsView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(AppColors.accent.opacity(0.2), lineWidth: 1)
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.2), lineWidth: 1)
         )
+    }
+
+    private func chipTitleColor(isSelected: Bool) -> Color {
+        guard isSelected else { return AppColors.textPrimary(for: colorScheme) }
+        return colorScheme == .light ? Color.white : Color.black
     }
 
     private func optionalInsightCard(text: String) -> some View {
@@ -138,7 +143,7 @@ struct InsightsView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(AppColors.accent.opacity(0.2), lineWidth: 1)
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.2), lineWidth: 1)
         )
     }
 }
