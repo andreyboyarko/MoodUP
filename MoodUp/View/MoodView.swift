@@ -34,7 +34,7 @@ struct MoodView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
-                    SectionHeaderView("How do you feel today?", subtitle: "Track your current mood and save it")
+                    SectionHeaderView("How do you feel now?", subtitle: "Track your current mood and save it")
 
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(Mood.allCases) { mood in
