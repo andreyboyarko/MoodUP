@@ -95,50 +95,60 @@ struct StatsView: View {
         }
     }
     
+    private func moodTimelineRow(_ entry: MoodEntry) -> some View {
+        HStack(spacing: 10) {
+
+            Text(entry.date.formatted(date: .omitted, time: .shortened))
+                .font(.caption.monospacedDigit())
+                .foregroundColor(.gray)
+                .frame(width: 60, alignment: .leading)
+
+            Text(entry.mood.emoji)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.mood.title)
+                    .font(.subheadline)
+                    .foregroundColor(AppColors.textPrimary(for: colorScheme))
+
+                if let sleep = entry.sleepQuality {
+                    Text("Sleep: \(sleep.title)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+
+                if let energy = entry.energyLevel {
+                    Text("Energy: \(energy.title)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
+
+            Spacer()
+        }
+    }
+    
     private func dayRow(_ summary: DayMoodSummary) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        let entries = moodStorage.entries(on: summary.dayStart)
+
+        return VStack(alignment: .leading, spacing: 10) {
+
+            // 📅 Дата
             Text(dayRowFormatter.string(from: summary.dayStart))
                 .font(.subheadline.weight(.semibold))
                 .foregroundColor(AppColors.textPrimary(for: colorScheme))
-                .frame(minWidth: 100, alignment: .leading)
-            
-            if summary.entryCount == 0 {
+
+            if entries.isEmpty {
                 Text("No logs")
                     .font(.subheadline)
                     .foregroundColor(AppColors.textSecondary(for: colorScheme))
-                
-                Spacer(minLength: 0)
             } else {
-                VStack(alignment: .leading, spacing: 4) {
-                    if let mood = summary.lastMood {
-                        HStack(spacing: 6) {
-                            Text(mood.emoji)
-                            Text("Mood: \(mood.title)")
-                                .font(.subheadline)
-                                .foregroundColor(AppColors.textSecondary(for: colorScheme))
-                        }
-                    }
-                    
-                    if let sleep = summary.lastSleep {
-                        Text("Sleep: \(sleep.title)")
-                            .font(.caption)
-                            .foregroundColor(AppColors.textSecondary(for: colorScheme))
-                    }
-                    
-                    if let energy = summary.lastEnergy {
-                        Text("Energy: \(energy.title)")
-                            .font(.caption)
-                            .foregroundColor(AppColors.textSecondary(for: colorScheme))
+                VStack(spacing: 6) {
+                    ForEach(entries) { entry in
+                        moodTimelineRow(entry)
                     }
                 }
-                
-                Spacer(minLength: 8)
-                
-                Text(summary.entryCount == 1 ? "1 log" : "\(summary.entryCount) logs")
-                    .font(.caption.monospacedDigit().weight(.medium))
-                    .foregroundColor(AppColors.accent(for: colorScheme))
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
     }
 }
