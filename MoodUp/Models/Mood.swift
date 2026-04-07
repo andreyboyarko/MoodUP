@@ -5,6 +5,12 @@
 
 import SwiftUI
 
+enum MoodValence: Equatable {
+    case positive
+    case neutral
+    case negative
+}
+
 enum Mood: String, Codable, CaseIterable, Identifiable {
     case great
     case good
@@ -14,6 +20,14 @@ enum Mood: String, Codable, CaseIterable, Identifiable {
     case stressed
 
     var id: String { rawValue }
+
+    var valence: MoodValence {
+        switch self {
+        case .great, .good, .calm: return .positive
+        case .okay: return .neutral
+        case .tired, .stressed: return .negative
+        }
+    }
 
     var title: String {
         switch self {

@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
 
 private let entriesKey = "moodup.moodEntries"
@@ -66,23 +65,55 @@ final class MoodStorageManager: ObservableObject {
         defaults.removeObject(forKey: entriesKey)
     }
 
+    private var calendar: Calendar { Calendar.current }
+
     func entriesInLastDays(_ days: Int) -> [MoodEntry] {
-        guard let start = Calendar.current.date(byAdding: .day, value: -days, to: Date()) else {
+        guard let start = calendar.date(byAdding: .day, value: -days, to: Date()) else {
             return entries
         }
         return entries.filter { $0.date >= start }
     }
 
-    func weeklyMoodCounts() -> [(Mood, Int)] {
-        let week = entriesInLastDays(7)
-        var counts: [Mood: Int] = [:]
-        for m in Mood.allCases {
-            counts[m] = 0
+    /// Все записи за календарный день (`dayStart` = `startOfDay`).
+    func entries(on dayStart: Date) -> [MoodEntry] {
+        let start = calendar.startOfDay(for: dayStart)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { return [] }
+        return entries.filter { $0.date >= start && $0.date < end }
+    }
+
+    /// Записи за сегодня.
+    func entriesToday() -> [MoodEntry] {
+        entries(on: Date())
+    }
+
+    /// Словарь день → записи за интервал [rangeStart, rangeEnd] включительно по дням.
+    func entriesGroupedByDay(from rangeStart: Date, to rangeEnd: Date) -> [Date: [MoodEntry]] {
+        let rs = calendar.startOfDay(for: rangeStart)
+        let re = calendar.startOfDay(for: rangeEnd)
+        var dict: [Date: [MoodEntry]] = [:]
+        for e in entries {
+            let d = e.dayStart
+            guard d >= rs && d <= re else { continue }
+            dict[d, default: []].append(e)
         }
-        for e in week {
-            counts[e.mood, default: 0] += 1
+        for k in dict.keys {
+            dict[k]?.sort { $0.date < $1.date }
         }
-        return Mood.allCases.map { ($0, counts[$0] ?? 0) }
+        return dict
+    }
+
+    /// Сводка по последним 7 календарным дням: от (сегодня − 6) до сегодня, по порядку.
+    func lastSevenDaysSummaries() -> [DayMoodSummary] {
+        let todayStart = calendar.startOfDay(for: Date())
+        guard let first = calendar.date(byAdding: .day, value: -6, to: todayStart) else { return [] }
+        let grouped = entriesGroupedByDay(from: first, to: todayStart)
+        return (0..<7).compactMap { offset -> DayMoodSummary? in
+            guard let day = calendar.date(byAdding: .day, value: offset, to: first) else { return nil }
+            let dayStart = calendar.startOfDay(for: day)
+            let dayEntries = grouped[dayStart] ?? []
+            let last = dayEntries.max(by: { $0.date < $1.date })
+            return DayMoodSummary(dayStart: dayStart, entryCount: dayEntries.count, lastMood: last?.mood)
+        }
     }
 
     func mostFrequentMood() -> Mood? {
@@ -93,4 +124,11 @@ final class MoodStorageManager: ObservableObject {
         }
         return counts.max(by: { $0.value < $1.value })?.key
     }
+}
+
+struct DayMoodSummary: Identifiable {
+    var id: Date { dayStart }
+    let dayStart: Date
+    let entryCount: Int
+    let lastMood: Mood?
 }

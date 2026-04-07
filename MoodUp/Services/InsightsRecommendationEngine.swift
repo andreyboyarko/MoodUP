@@ -56,4 +56,11 @@ enum InsightsRecommendationEngine {
 
         return nil
     }
+
+    /// Короткий контекст по числу записей за сегодня (календарный день).
+    static func todayActivityMessage(logCount: Int) -> String? {
+        guard logCount > 0 else { return nil }
+        if logCount == 1 { return "You've logged 1 mood today." }
+        return "You've logged \(logCount) moods today."
+    }
 }
