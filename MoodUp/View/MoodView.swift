@@ -46,7 +46,7 @@ struct MoodView: View {
                                 dimmedNonSelected: shouldDim(mood),
                                 action: {
                                     guard !isSaveAnimating else { return }
-                                    withAnimation(.spring(response: 0.38, dampingFraction: 0.72)) {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
                                         selectedMood = mood
                                     }
                                 }
@@ -142,13 +142,22 @@ struct MoodView: View {
 
     private func completeSave(mood: Mood) {
         moodStorage.saveMood(mood)
-        withAnimation(.easeOut(duration: 0.28)) {
-            saveOverlay = .idle
-            selectedMood = nil
+
+        // Сбрасываем выбор
+        selectedMood = nil
+
+        // Даем карточкам "упасть" и исчезнуть
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            withAnimation(.linear(duration: 0.01)) {
+                saveOverlay = .idle
+            }
         }
+
+        // Пульс текущего блока
         withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
             savePulse = true
         }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
             withAnimation {
                 savePulse = false
@@ -222,8 +231,9 @@ private struct MoodSaveHeroContent: View {
                 .font(.system(size: 26, weight: .bold, design: .rounded))
                 .foregroundColor(AppColors.textPrimary(for: colorScheme))
         }
-        .padding(.horizontal, 32)
-        .padding(.vertical, 36)
+        .frame(width: 220)
+        .aspectRatio(1, contentMode: .fit)
+        .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .fill(AppColors.cardBackground(for: colorScheme))

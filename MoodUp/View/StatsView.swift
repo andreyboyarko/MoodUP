@@ -8,26 +8,43 @@ import SwiftUI
 struct StatsView: View {
     @EnvironmentObject private var moodStorage: MoodStorageManager
     @Environment(\.colorScheme) private var colorScheme
-    
-    private var daySummaries: [DayMoodSummary] { moodStorage.lastSevenDaysSummaries() }
-    private var weekTotal: Int { daySummaries.reduce(0) { $0 + $1.entryCount } }
-    
+
+    private var todayStart: Date {
+        Calendar.current.startOfDay(for: Date())
+    }
+
+    private var todayEntries: [MoodEntry] {
+        moodStorage.entries(on: todayStart)
+            .sorted { $0.date > $1.date }
+    }
+
+    private var previousDays: [DayMoodSummary] {
+        moodStorage
+            .lastSevenDaysSummaries()
+            .filter { $0.entryCount > 0 && !Calendar.current.isDateInToday($0.dayStart) }
+            .sorted { $0.dayStart > $1.dayStart }
+    }
+
+    private var weekTotal: Int {
+        moodStorage.lastSevenDaysSummaries().reduce(0) { $0 + $1.entryCount }
+    }
+
     private var dayRowFormatter: DateFormatter {
         let f = DateFormatter()
         f.locale = .current
         f.setLocalizedDateFormatFromTemplate("EEE d MMM")
         return f
     }
-    
+
     var body: some View {
         ZStack {
             AppColors.screenBackground(for: colorScheme)
                 .ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     SectionHeaderView("Stats", subtitle: "Your mood activity overview")
-                    
+
                     if moodStorage.entries.isEmpty {
                         EmptyStateView(
                             title: "No mood data yet",
@@ -37,7 +54,14 @@ struct StatsView: View {
                         .padding(.top, 8)
                     } else {
                         summaryGrid
-                        weeklyByDaySection
+
+                        if !todayEntries.isEmpty {
+                            todaySection
+                        }
+
+                        if !previousDays.isEmpty {
+                            previousDaysSection
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -46,7 +70,7 @@ struct StatsView: View {
             }
         }
     }
-    
+
     private var summaryGrid: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
@@ -54,16 +78,19 @@ struct StatsView: View {
                     title: "Total entries",
                     value: "\(moodStorage.entries.count)"
                 )
+
                 SummaryCardView(
                     title: "Most frequent mood",
                     value: moodStorage.mostFrequentMood()?.title ?? "—"
                 )
             }
+
             HStack(spacing: 12) {
                 SummaryCardView(
                     title: "Last mood",
                     value: moodStorage.latestEntry()?.mood.title ?? "—"
                 )
+
                 SummaryCardView(
                     title: "This week",
                     value: "\(weekTotal) entries"
@@ -71,16 +98,16 @@ struct StatsView: View {
             }
         }
     }
-    
-    private var weeklyByDaySection: some View {
+
+    private var todaySection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("This week by day")
+            Text("Today")
                 .font(.headline)
                 .foregroundColor(AppColors.textPrimary(for: colorScheme))
-            
-            VStack(alignment: .leading, spacing: 12) {
-                ForEach(daySummaries) { summary in
-                    dayRow(summary)
+
+            VStack(alignment: .leading, spacing: 14) {
+                ForEach(todayEntries) { entry in
+                    moodTimelineRow(entry)
                 }
             }
             .padding(16)
@@ -94,51 +121,94 @@ struct StatsView: View {
             )
         }
     }
-    
-    private func dayRow(_ summary: DayMoodSummary) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text(dayRowFormatter.string(from: summary.dayStart))
-                .font(.subheadline.weight(.semibold))
+
+    private var previousDaysSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Previous days")
+                .font(.headline)
                 .foregroundColor(AppColors.textPrimary(for: colorScheme))
-                .frame(minWidth: 100, alignment: .leading)
-            
-            if summary.entryCount == 0 {
-                Text("No logs")
-                    .font(.subheadline)
-                    .foregroundColor(AppColors.textSecondary(for: colorScheme))
-                
-                Spacer(minLength: 0)
-            } else {
-                VStack(alignment: .leading, spacing: 4) {
-                    if let mood = summary.lastMood {
-                        HStack(spacing: 6) {
-                            Text(mood.emoji)
-                            Text("Mood: \(mood.title)")
-                                .font(.subheadline)
-                                .foregroundColor(AppColors.textSecondary(for: colorScheme))
-                        }
-                    }
-                    
-                    if let sleep = summary.lastSleep {
-                        Text("Sleep: \(sleep.title)")
-                            .font(.caption)
-                            .foregroundColor(AppColors.textSecondary(for: colorScheme))
-                    }
-                    
-                    if let energy = summary.lastEnergy {
-                        Text("Energy: \(energy.title)")
-                            .font(.caption)
-                            .foregroundColor(AppColors.textSecondary(for: colorScheme))
-                    }
+
+            VStack(spacing: 14) {
+                ForEach(previousDays) { summary in
+                    previousDayCard(summary)
                 }
-                
-                Spacer(minLength: 8)
-                
+            }
+        }
+    }
+
+    private func previousDayCard(_ summary: DayMoodSummary) -> some View {
+        let entries = moodStorage.entries(on: summary.dayStart)
+            .sorted { $0.date > $1.date }
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text(dayRowFormatter.string(from: summary.dayStart))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(AppColors.textPrimary(for: colorScheme))
+
+                Spacer()
+
                 Text(summary.entryCount == 1 ? "1 log" : "\(summary.entryCount) logs")
                     .font(.caption.monospacedDigit().weight(.medium))
                     .foregroundColor(AppColors.accent(for: colorScheme))
             }
+
+            VStack(spacing: 10) {
+                ForEach(entries) { entry in
+                    moodTimelineRow(entry)
+                }
+            }
         }
-        .padding(.vertical, 4)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(AppColors.cardBackground(for: colorScheme))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(AppColors.accent(for: colorScheme).opacity(0.12), lineWidth: 1)
+        )
+    }
+
+    private func moodTimelineRow(_ entry: MoodEntry) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text(entry.date.formatted(date: .omitted, time: .shortened))
+                .font(.caption.monospacedDigit())
+                .foregroundColor(AppColors.textSecondary(for: colorScheme))
+                .frame(width: 56, alignment: .leading)
+
+            Text(entry.mood.emoji)
+                .font(.title3)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(entry.mood.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(AppColors.textPrimary(for: colorScheme))
+
+                let details = timelineDetails(for: entry)
+                if !details.isEmpty {
+                    Text(details)
+                        .font(.caption)
+                        .foregroundColor(AppColors.textSecondary(for: colorScheme))
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func timelineDetails(for entry: MoodEntry) -> String {
+        var parts: [String] = []
+
+        if let sleep = entry.sleepQuality {
+            parts.append("Sleep: \(sleep.title)")
+        }
+
+        if let energy = entry.energyLevel {
+            parts.append("Energy: \(energy.title)")
+        }
+
+        return parts.joined(separator: " · ")
     }
 }

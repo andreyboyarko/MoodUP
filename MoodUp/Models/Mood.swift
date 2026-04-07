@@ -61,6 +61,17 @@ enum Mood: String, Codable, CaseIterable, Identifiable {
         case .stressed: return "😣"
         }
     }
+    
+    var fallRotation: Double {
+        switch self {
+        case .great: return -12
+        case .good: return 10
+        case .calm: return -8
+        case .okay: return 14
+        case .tired: return -15
+        case .stressed: return 9
+        }
+    }
 
     func accentTint(for scheme: ColorScheme) -> Color {
         switch self {
@@ -72,4 +83,6 @@ enum Mood: String, Codable, CaseIterable, Identifiable {
         case .stressed: return Color.orange.opacity(0.85)
         }
     }
+    
+    
 }
