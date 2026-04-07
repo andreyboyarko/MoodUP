@@ -8,26 +8,26 @@ import SwiftUI
 struct StatsView: View {
     @EnvironmentObject private var moodStorage: MoodStorageManager
     @Environment(\.colorScheme) private var colorScheme
-
+    
     private var daySummaries: [DayMoodSummary] { moodStorage.lastSevenDaysSummaries() }
     private var weekTotal: Int { daySummaries.reduce(0) { $0 + $1.entryCount } }
-
+    
     private var dayRowFormatter: DateFormatter {
         let f = DateFormatter()
         f.locale = .current
         f.setLocalizedDateFormatFromTemplate("EEE d MMM")
         return f
     }
-
+    
     var body: some View {
         ZStack {
             AppColors.screenBackground(for: colorScheme)
                 .ignoresSafeArea()
-
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     SectionHeaderView("Stats", subtitle: "Your mood activity overview")
-
+                    
                     if moodStorage.entries.isEmpty {
                         EmptyStateView(
                             title: "No mood data yet",
@@ -46,7 +46,7 @@ struct StatsView: View {
             }
         }
     }
-
+    
     private var summaryGrid: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
@@ -71,13 +71,13 @@ struct StatsView: View {
             }
         }
     }
-
+    
     private var weeklyByDaySection: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("This week by day")
                 .font(.headline)
                 .foregroundColor(AppColors.textPrimary(for: colorScheme))
-
+            
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(daySummaries) { summary in
                     dayRow(summary)
@@ -94,29 +94,46 @@ struct StatsView: View {
             )
         }
     }
-
+    
     private func dayRow(_ summary: DayMoodSummary) -> some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             Text(dayRowFormatter.string(from: summary.dayStart))
                 .font(.subheadline.weight(.semibold))
                 .foregroundColor(AppColors.textPrimary(for: colorScheme))
                 .frame(minWidth: 100, alignment: .leading)
-
+            
             if summary.entryCount == 0 {
                 Text("No logs")
                     .font(.subheadline)
                     .foregroundColor(AppColors.textSecondary(for: colorScheme))
+                
                 Spacer(minLength: 0)
             } else {
-                HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     if let mood = summary.lastMood {
-                        Text(mood.emoji)
-                        Text("Last: \(mood.title)")
-                            .font(.subheadline)
+                        HStack(spacing: 6) {
+                            Text(mood.emoji)
+                            Text("Mood: \(mood.title)")
+                                .font(.subheadline)
+                                .foregroundColor(AppColors.textSecondary(for: colorScheme))
+                        }
+                    }
+                    
+                    if let sleep = summary.lastSleep {
+                        Text("Sleep: \(sleep.title)")
+                            .font(.caption)
+                            .foregroundColor(AppColors.textSecondary(for: colorScheme))
+                    }
+                    
+                    if let energy = summary.lastEnergy {
+                        Text("Energy: \(energy.title)")
+                            .font(.caption)
                             .foregroundColor(AppColors.textSecondary(for: colorScheme))
                     }
                 }
+                
                 Spacer(minLength: 8)
+                
                 Text(summary.entryCount == 1 ? "1 log" : "\(summary.entryCount) logs")
                     .font(.caption.monospacedDigit().weight(.medium))
                     .foregroundColor(AppColors.accent(for: colorScheme))

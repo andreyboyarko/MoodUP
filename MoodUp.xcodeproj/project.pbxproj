@@ -10,9 +10,22 @@
 		FC593C902F83BFC2006773FD /* MoodUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoodUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FC593D082F851F64006773FD /* Exceptions for "MoodUp" folder in "MoodUp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				README_RU.md,
+			);
+			target = FC593C8F2F83BFC2006773FD /* MoodUp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FC593C922F83BFC2006773FD /* MoodUp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FC593D082F851F64006773FD /* Exceptions for "MoodUp" folder in "MoodUp" target */,
+			);
 			path = MoodUp;
 			sourceTree = "<group>";
 		};

@@ -112,7 +112,14 @@ final class MoodStorageManager: ObservableObject {
             let dayStart = calendar.startOfDay(for: day)
             let dayEntries = grouped[dayStart] ?? []
             let last = dayEntries.max(by: { $0.date < $1.date })
-            return DayMoodSummary(dayStart: dayStart, entryCount: dayEntries.count, lastMood: last?.mood)
+
+            return DayMoodSummary(
+                dayStart: dayStart,
+                entryCount: dayEntries.count,
+                lastMood: last?.mood,
+                lastSleep: last?.sleepQuality,
+                lastEnergy: last?.energyLevel
+            )
         }
     }
 
@@ -128,7 +135,10 @@ final class MoodStorageManager: ObservableObject {
 
 struct DayMoodSummary: Identifiable {
     var id: Date { dayStart }
+
     let dayStart: Date
     let entryCount: Int
     let lastMood: Mood?
+    let lastSleep: SleepQuality?
+    let lastEnergy: EnergyLevel?
 }
