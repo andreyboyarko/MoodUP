@@ -8,7 +8,7 @@ struct SplashView: View {
     @State private var gradientOffset: CGFloat = 420
     @State private var offsetY: CGFloat = 0
 
-    private let neonColor = Color(red: 163/255, green: 255/255, blue: 18/255)
+    private let neonColor = AppColors.accentNeon
 
     var body: some View {
         ZStack {
